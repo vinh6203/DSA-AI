@@ -133,20 +133,18 @@ int node_value_sum(node* root)
     return root->data + node_value_sum(root->left) + node_value_sum(root->right);
 }
 
-int k = 0;
-
-void depth(node* root, int h)
+void depth(node* root, int current_depth, int& max_depth)
 {
     if (root == NULL)
     {
-        if (h > k)
+        if (current_depth > max_depth)
         {
-            k = h;
+            max_depth = current_depth;
         }
         return;
     }
-    depth(root->left, h+1);
-    depth(root->right, h+1);
+    depth(root->left, current_depth + 1, max_depth);
+    depth(root->right, current_depth + 1, max_depth);
 }
 
 int main()
