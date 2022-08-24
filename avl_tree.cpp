@@ -1,4 +1,4 @@
-#include <bits/stdc++.h>
+#include<iostream>
 using namespace std;
 
 class node
@@ -8,15 +8,17 @@ class node
         int height;
         node* left;
         node* right;
+        node* parent;
 };
 
-node* new_node(int data)
+node* new_node(int data, node* parent = NULL)
 {
     node* new_node = new node();
     new_node->data = data;
     new_node->left = NULL;
     new_node->right = NULL;
     new_node->height = 1;
+    new_node->parent = parent;
     return new_node;
 }
 
@@ -38,54 +40,88 @@ int getBalance(node *node)
     return height(node->right) - height(node->left);
 }
 
-int max(int a, int b) //find the higher height
-{
-    return (a > b) ? a : b;
-}
-
 node* right_rotate(node* y)
 {
+    node* parent = y->parent;
     node* x = y->left;              /*       y                 x        */
     node* t2 = x->right;            /*      / \     right     / \       */
                                     /*     x   t3   --->     t1  y      */
     x->right = y;                   /*    / \       <---        / \     */
     y->left = t2;                   /*   t1 t2      left       t2 t3    */
-
+    t2->parent = y;
+    y->parent = x;
+    
     y->height = max(height(y->left), height(y->right)) + 1;
-    x->height = max(height(x->left), height(x->right)) + 1;
+    x->height = max(height(x->left), height(x->right)) + 1; //update height
 
+    if (parent != NULL) //set parent pointer to y (if not NIL)
+    {
+        if (parent->left == y)
+        {
+            parent->left = x;
+        }
+        else
+        {
+            parent->right = x;
+        }
+    }
+    else //if parentless set to NIL
+    {
+        x->parent = NULL;
+    }
+    
     return x;
 }
 
 node* left_rotate(node* x)
 {
+    node* parent = x->parent;
     node* y = x->right;             /*       y                 x        */
     node* t2 = y->left;             /*      / \     right     / \       */   
                                     /*     x   t3   --->     t1  y      */
     y->left = x;                    /*    / \       <---        / \     */
     x->right = t2;                  /*   t1 t2      left       t2 t3    */
+    t2->parent = x;
+    x->parent = y;
 
     x->height = max(height(x->left), height(x->right)) + 1;
-    y->height = max(height(y->left), height(y->right)) + 1;
-    
+    y->height = max(height(y->left), height(y->right)) + 1; //update height
+
+    if (parent != NULL) //set parent pointer to y (if not NIL)
+    {
+        if (parent->left == x)
+        {
+            parent->left = y;
+        }
+        else
+        {
+            parent->right = y;
+        }
+        
+    }
+    else  //if parentless set to NIL
+    {
+        y->parent = NULL;
+    }
+
     return y;
 }
 
-node* insert(node* root, int data)
+node* insert(node* root, int data, node* parent = NULL)
 {
     if (root == NULL)
     {
-        root = new_node(data);
+        root = new_node(data, parent);
         return root;
     }
-    //find "perfect spot" for insertion (spot that doesn't change avl tree invariant after insertion)
+    //find "perfect spot" for insertion (spot that doesn't violate avl tree invariant after insertion)
     if (data < root->data)
     {
-        root->left = insert(root->left, data);
+        root->left = insert(root->left, data, root);
     }
     else
     {
-        root->right = insert(root->right, data);
+        root->right = insert(root->right, data, root);
     }
 
     root->height = max(height(root->left), height(root->right)) + 1;
@@ -121,9 +157,8 @@ node* insert(node* root, int data)
 
 node* deletion(node* root, int data)
 {
-    if ((data < root->data && root->left == NULL) || (data > root->data && root->right == NULL))
+    if (root == NULL)
     {
-        cout << "Cannot delete, item not in tree!" << endl;
         return root;
     }
     else if (data < root->data)
@@ -134,7 +169,69 @@ node* deletion(node* root, int data)
     {
         root->right = deletion(root->right, data);
     }
+    else
+    {
+        if (root->left == NULL && root->right == NULL) //the deleted node is a leaf
+        {
+            delete root;
+            root = NULL;
+        }
+        else if (root->left == NULL) //left child is NULL
+        {
+            node* temp = root;
+            root = root->right;
+            delete temp;
+        }
+        else if(root->right == NULL) //right child is NULL
+        {
+            node* temp = root;
+            root = root->left;
+            delete temp;
+        }
+        else //2 children
+        {       
+            node* temp = root->right; //move to the next larger element in right subtree
+                                      //leftmost element in right subtree of "the node we want to delete"
+            while (temp->left != NULL)
+            {
+                temp = temp->left;
+            }
+            root->data = temp->data;    //swap the leftmost node in right subtree of "the node we want to delete" 
+                                        //to "the node we want to delete"
+            root->right = deletion(root->right, temp->data);  //recurse on the right to find and delete leftmost node
+        }
+    }
 
+    if (root == NULL)
+    {
+        return root;
+    }
+
+    root->height = 1 + max(height(root->left), height(root->right)); //update height
+    int balance = getBalance(root);
+    //cout << root->data << " " << balance << endl;
+    //Left Left Case
+    if (balance > 1 && getBalance(root->right) >= 0)
+    {
+        return left_rotate(root);
+    }
+    //Right Left Case
+    if (balance > 1 && getBalance(root->right) < 0)
+    {
+        root->right = right_rotate(root->right);
+        return left_rotate(root);
+    }
+    //Right Right Case
+    if (balance < -1 && getBalance(root->left) <= 0)
+    {
+        return right_rotate(root);
+    }
+    //Left Right Case
+    if (balance < -1 && getBalance(root->left) > 0)
+    {
+        root->left = left_rotate(root);
+        return right_rotate(root);
+    } 
     return root;
 }
 
@@ -169,30 +266,28 @@ int count_element(node* root)
         
 }
 
-int find(node* root, int data)
+//return node if success, return nullptr if failed
+node* find_node(node* root, int data)
 {
     if (root->data == data)
     {
-        cout << "Find the item" << endl;
         //cout << root->height << endl; //check the height to see if we have changed the height correctly
-        return (root->left)->height; //return item position or "return data" for data
+        return root; //return correct node
     }
     else if ( (data < root->data && root->left == NULL) || (data > root->data && root->right == NULL) ) 
     {   //if the current node.data != data and its children is NULL (or it is a leaf) return item not in tree
-        cout << "Item not in tree" << endl;
-        return -1;
+        return nullptr;
     }
     else if (data > root->data)
     {
         //root = root->right; //recurse on the right subtree if data > root.data
-        return find(root->right, data);
+        return find_node(root->right, data);
     }
     else
     {
         //root = root->left; //recurse on the left subtree if data =< root.data
-        return find(root->left, data);
+        return find_node(root->left, data);
     }
-    return -1;
 }
 
 int sum_element(node* root)
@@ -224,12 +319,13 @@ int max_element(node* root, int max_value) //  max_value = -1 at start
 int main()
 {
     node* root = NULL;
+    root = insert(root, 3);
     root = insert(root, 1);
     root = insert(root, 9);
-    root = insert(root, 3);
-    root = insert(root, 10);
     root = insert(root, 4);
-    //find(root, 1);
+    root = insert(root, 10);
+    root = insert(root, 11);
+
     //node_order(root);
     //cout << count_element(root);
     //cout << sum_element(root);
