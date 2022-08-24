@@ -1,20 +1,21 @@
-#include <bits/stdc++.h>
-
+#include <iostream>
 using namespace std;
 
 struct node
 {
     int data;
-    struct node* left;
-    struct node* right;
+    node* left;
+    node* right;
+    node* parent;
 };
 
-node* new_node(int data)
+node* new_node(int data, node* parent = NULL)
 {
     node* temp = new node;
     temp->data = data;
     temp->left = NULL;
     temp->right = NULL;
+    temp->parent = parent;
     return temp;
 }
 
@@ -31,47 +32,45 @@ void traversal_order(struct node* node)
     //cout << node->data << " ";  //postorder then print after
 }
 
-void find(node* root, int data)
+node* find(node* root, int data)
 {
     //cout << root->data << endl; //turn on if want to check the search path
     if (root->data == data)
     {
-        cout << "Find the item" << endl;
-        return;
+        return root;
     }
     else if ( (data < root->data && root->left == NULL) || (data > root->data && root->right == NULL) ) 
     {   //if the current node.data != data and its children is NULL (or it is a leaf) return item not in tree
-        cout << "Item not in tree" << endl;
-        return;
+        return nullptr;
     }
     else if (data > root->data)
     {
         //root = root->right; //recurse on the right subtree if data > root.data
-        find(root->right, data);
+        return find(root->right, data);
     }
     else
     {
         //root = root->left; //recurse on the left subtree if data =< root.data
-        find(root->left, data);
+        return find(root->left, data);
     }
 }
 
 
-node* insert(node* root, int data)
+node* insert(node* root, int data, node* parent = NULL)
 {
     if (root == NULL)
     {
-        root = new_node(data);
+        root = new_node(data, parent);
         return root;
     }
     if (data < root->data)
     {
-        root->left = insert(root->left, data);
+        root->left = insert(root->left, data, root);
     }
     else
     {
-        root->right = insert(root->right, data);
-    }  
+        root->right = insert(root->right, data, root);
+    }
     return root;
 }
 
@@ -161,8 +160,8 @@ int main()
     root = insert(root, 8);
     root = insert(root, -5);
     root = insert(root, 2);
-
     traversal_order(root);
-    //cout << node_value_sum(root);
-
+    deletion(root, 0);
+    cout << endl;
+    traversal_order(root);
 }
