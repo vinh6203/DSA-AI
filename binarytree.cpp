@@ -161,7 +161,7 @@ int main()
     root = insert(root, -5);
     root = insert(root, 2);
     traversal_order(root);
-    deletion(root, 0);
+    root = deletion(root, 0);
     cout << endl;
     traversal_order(root);
 }
