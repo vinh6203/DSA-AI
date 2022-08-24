@@ -54,7 +54,7 @@ node* right_rotate(node* y)
     y->height = max(height(y->left), height(y->right)) + 1;
     x->height = max(height(x->left), height(x->right)) + 1; //update height
 
-    if (parent != NULL) //set parent pointer to y (if not NIL)
+    if (parent != NULL) //set parent pointer to x (if not NIL)
     {
         if (parent->left == y)
         {
