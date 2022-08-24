@@ -143,7 +143,6 @@ void depth(node* root, int h)
         {
             k = h;
         }
-        h--;
         return;
     }
     depth(root->left, h+1);
