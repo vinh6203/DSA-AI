@@ -139,7 +139,7 @@ void depth(node* root, int h)
 {
     if (root == NULL)
     {
-        if (h < k)
+        if (h > k)
         {
             k = h;
         }
