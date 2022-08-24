@@ -48,13 +48,17 @@ node* right_rotate(node* y)
                                     /*     x   t3   --->     t1  y      */
     x->right = y;                   /*    / \       <---        / \     */
     y->left = t2;                   /*   t1 t2      left       t2 t3    */
-    t2->parent = y;
     y->parent = x;
+    if (t2 != nullptr)
+    {
+        t2->parent = y;
+    }
     
     y->height = max(height(y->left), height(y->right)) + 1;
     x->height = max(height(x->left), height(x->right)) + 1; //update height
 
-    if (parent != NULL) //set parent pointer to x (if not NIL)
+    x->parent = parent;
+    if (parent != NULL) //set parent pointer to y (if not NIL)
     {
         if (parent->left == y)
         {
@@ -64,10 +68,6 @@ node* right_rotate(node* y)
         {
             parent->right = x;
         }
-    }
-    else //if parentless set to NIL
-    {
-        x->parent = NULL;
     }
     
     return x;
@@ -81,12 +81,16 @@ node* left_rotate(node* x)
                                     /*     x   t3   --->     t1  y      */
     y->left = x;                    /*    / \       <---        / \     */
     x->right = t2;                  /*   t1 t2      left       t2 t3    */
-    t2->parent = x;
     x->parent = y;
+    if (t2 != nullptr)
+    {
+        t2->parent = x;
+    }
 
     x->height = max(height(x->left), height(x->right)) + 1;
     y->height = max(height(y->left), height(y->right)) + 1; //update height
 
+    y->parent = parent;
     if (parent != NULL) //set parent pointer to y (if not NIL)
     {
         if (parent->left == x)
@@ -98,10 +102,6 @@ node* left_rotate(node* x)
             parent->right = y;
         }
         
-    }
-    else  //if parentless set to NIL
-    {
-        y->parent = NULL;
     }
 
     return y;
@@ -320,13 +320,10 @@ int main()
 {
     node* root = NULL;
     root = insert(root, 3);
-    root = insert(root, 1);
-    root = insert(root, 9);
-    root = insert(root, 4);
     root = insert(root, 10);
-    root = insert(root, 11);
+    root = insert(root, 4);
 
-    //node_order(root);
+    auto node = find_node(root, 4);
     //cout << count_element(root);
     //cout << sum_element(root);
     //cout << max_element(root, -1);
