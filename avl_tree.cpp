@@ -42,13 +42,12 @@ int getBalance(node *node)
 
 node* right_rotate(node* y)
 {
-    node* parent = y->parent;
+                                    /*       |                 |        */
     node* x = y->left;              /*       y                 x        */
     node* t2 = x->right;            /*      / \     right     / \       */
                                     /*     x   t3   --->     t1  y      */
     x->right = y;                   /*    / \       <---        / \     */
     y->left = t2;                   /*   t1 t2      left       t2 t3    */
-    y->parent = x;
     if (t2 != nullptr)
     {
         t2->parent = y;
@@ -57,31 +56,30 @@ node* right_rotate(node* y)
     y->height = max(height(y->left), height(y->right)) + 1;
     x->height = max(height(x->left), height(x->right)) + 1; //update height
 
-    x->parent = parent;
-    if (parent != NULL) //set parent pointer to y (if not NIL)
+    x->parent = y->parent;
+    if (y->parent != NULL) //set parent pointer to y (if not NIL)
     {
-        if (parent->left == y)
+        if (y->parent->left == y)
         {
-            parent->left = x;
+            y->parent->left = x;
         }
         else
         {
-            parent->right = x;
+            y->parent->right = x;
         }
     }
-    
+    y->parent = x;
     return x;
 }
 
 node* left_rotate(node* x)
-{
-    node* parent = x->parent;
-    node* y = x->right;             /*       y                 x        */
-    node* t2 = y->left;             /*      / \     right     / \       */   
-                                    /*     x   t3   --->     t1  y      */
-    y->left = x;                    /*    / \       <---        / \     */
-    x->right = t2;                  /*   t1 t2      left       t2 t3    */
-    x->parent = y;
+{                                   
+    node* y = x->right;             /*       |                 |        */
+    node* t2 = y->left;             /*       y                 x        */
+                                    /*      / \     right     / \       */   
+    y->left = x;                    /*     x   t3   --->     t1  y      */
+    x->right = t2;                  /*    / \       <---        / \     */
+                                    /*   t1 t2      left       t2 t3    */
     if (t2 != nullptr)
     {
         t2->parent = x;
@@ -90,24 +88,24 @@ node* left_rotate(node* x)
     x->height = max(height(x->left), height(x->right)) + 1;
     y->height = max(height(y->left), height(y->right)) + 1; //update height
 
-    y->parent = parent;
-    if (parent != NULL) //set parent pointer to y (if not NIL)
+    y->parent = x->parent;
+    if (x->parent != NULL) //set parent pointer to y (if not NIL)
     {
-        if (parent->left == x)
+        if (x->parent->left == x)
         {
-            parent->left = y;
+            x->parent->left = y;
         }
         else
         {
-            parent->right = y;
+            x->parent->right = y;
         }
         
     }
-
+    x->parent = y;
     return y;
 }
 
-node* insert(node* root, int data, node* parent = NULL)
+node* insertion(node* root, int data, node* parent = NULL)
 {
     if (root == NULL)
     {
@@ -117,11 +115,11 @@ node* insert(node* root, int data, node* parent = NULL)
     //find "perfect spot" for insertion (spot that doesn't violate avl tree invariant after insertion)
     if (data < root->data)
     {
-        root->left = insert(root->left, data, root);
+        root->left = insertion(root->left, data, root);
     }
     else
     {
-        root->right = insert(root->right, data, root);
+        root->right = insertion(root->right, data, root);
     }
 
     root->height = max(height(root->left), height(root->right)) + 1;
@@ -235,13 +233,13 @@ node* deletion(node* root, int data)
     return root;
 }
 
-void node_order(node* root)
+void print_tree(node* root)
 {
     if (root != NULL)
     {
-        node_order(root->left);
+        print_tree(root->left);
         cout << root->data << " ";
-        node_order(root->right);
+        print_tree(root->right);
     }
 }
 
@@ -300,31 +298,16 @@ int sum_element(node* root)
     
 }
 
-int max_element(node* root, int max_value) //  max_value = -1 at start
-{
-    if (root == NULL)
-    {
-        return max_value;
-    }
-    else
-    {
-        if (max_value < root->data) // > if for min
-        {
-            max_value = root->data;
-        }
-        return max(max_element(root->left, max_value), max_element(root->right, max_value));
-    }
-}
-
 int main()
 {
     node* root = NULL;
-    root = insert(root, 3);
-    root = insert(root, 10);
-    root = insert(root, 4);
-
-    auto node = find_node(root, 4);
+    root = insertion(root, 3);
+    root = insertion(root, 10);
+    root = insertion(root, 4);
+    root = insertion(root, 6);
+    root = insertion(root, 11);
+    
+    
     //cout << count_element(root);
     //cout << sum_element(root);
-    //cout << max_element(root, -1);
 }
