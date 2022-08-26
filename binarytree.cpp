@@ -32,6 +32,54 @@ void traversal_order(struct node* node)
     //cout << node->data << " ";  //postorder then print after
 }
 
+node* find_max_node(node* root)
+{
+    while (root->right != NULL)
+    {
+        root = root->right;
+    }
+    return root;
+}
+
+node* find_min_node(node* root)
+{
+    while (root->left != NULL)
+    {
+        root = root->left;
+    }
+    return root;
+}
+
+node* next_successor(node* root)
+{
+    if (root->right != NULL)
+    {
+        return find_min_node(root->right);
+    }
+    node* iterator_node = root->parent;
+    while (iterator_node != NULL && root == iterator_node->right)
+    {
+        root = iterator_node;
+        iterator_node = iterator_node->parent;
+    }
+    return iterator_node;
+}
+
+node* next_predecessor(node* root)
+{
+    if (root->left != NULL)
+    {
+        return find_max_node(root->left);
+    }
+    node* iterator_node = root->parent;
+    while (iterator_node != NULL && root == iterator_node->left)
+    {
+        root = iterator_node;
+        iterator_node = iterator_node->left;
+    }
+    return iterator_node;
+}
+
 node* find(node* root, int data)
 {
     //cout << root->data << endl; //turn on if want to check the search path
@@ -99,23 +147,21 @@ node* deletion(node* root, int data)
         else if (root->left == NULL) //left child is NULL
         {
             node* temp = root;
+            root->right->parent = root->parent;
             root = root->right;
             delete temp;
         }
         else if(root->right == NULL) //right child is NULL
         {
             node* temp = root;
+            root->left->parent = root->parent;
             root = root->left;
             delete temp;
         }
         else //2 children
         {       
-            node* temp = root->right; //move to the next larger element in right subtree
+            node* temp = next_successor(root); //move to the next larger element in right subtree
                                       //leftmost element in right subtree of "the node we want to delete"
-            while (temp->left != NULL)
-            {
-                temp = temp->left;
-            }
             root->data = temp->data;  //copy the leftmost node in right subtree of "the node we want to delete" 
                                       //to "the node we want to delete"
             root->right = deletion(root->right, temp->data);  //recurse on the right to find and delete leftmost node
@@ -143,12 +189,13 @@ void depth(node* root, int current_depth, int& max_depth)
         }
         return;
     }
-    depth(root->left, current_depth + 1, max_depth);
-    depth(root->right, current_depth + 1, max_depth);
+    depth(root->left, current_depth+1, max_depth);
+    depth(root->right, current_depth+1, max_depth);
 }
 
 int main()
-{
+{  
+    int height = 0;
     struct node* root = NULL;
     root = insert(root, 5);
     root = insert(root, 0);
@@ -157,8 +204,4 @@ int main()
     root = insert(root, 8);
     root = insert(root, -5);
     root = insert(root, 2);
-    traversal_order(root);
-    root = deletion(root, 0);
-    cout << endl;
-    traversal_order(root);
 }
