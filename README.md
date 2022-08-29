@@ -1,3 +1,2 @@
 # DSA + AI
-DSA exercises, Reference: geeksforgeeks.com
-AI exercises
+DSA, AI exercises, Reference: geeksforgeeks.com
