@@ -13,7 +13,7 @@ player_o_id = -1
 player_o_icon = 'O'
 
 current_turn_util = player_x_id
-convert_turn_to_icon = dict([[1, 'X'], [-1, 'O']])
+convert_turn_to_icon = dict([[player_x_id, player_x_icon], [player_o_id, player_o_icon]])
 
 # Set Delay on the screen (1 for 1 second)
 allowed_delay = True  #set this to True if want delay on screen
