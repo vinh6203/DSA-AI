@@ -92,9 +92,9 @@ class tic_tac_toe_board(object):
         for row in self.board:
             for num in row:
                 if num == player_x_id:
-                    print("X", end=" ")
+                    print(player_x_icon, end=" ")
                 elif num == player_o_id:
-                    print("O", end=" ")
+                    print(player_o_icon, end=" ")
                 else:
                     print("-", end=" ")
             print("")
