@@ -5,6 +5,7 @@ import time
 
 # This is custom
 # This also need to be synchronized with win_condition in util.py
+# IMPORTANT!: Bot behavior depends on this heuristic_function
 def heuristic_function(board: tic_tac_toe_board):
     score = 0
     for chain in board.get_chains(player_x_id):
